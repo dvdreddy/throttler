@@ -170,13 +170,15 @@
           ;; The approach is simple: pipe a bogus message through a
           ;; throttled channel before evaluating the original function.
          (let [[v _] (alts!! [[in :eval-request] (timeout max-queue-wait-timeout)])]
-            (when-not v
-              (throw (ex-info "Throttler in channel timed out" 
-                              {:causes #{:in-ch-timed-out}}))))
+           (when-not v
+             (throw (ex-info "Throttler in channel timed out"
+                             {:causes #{:in-ch-timed-out}
+                              :timeout max-queue-wait-timeout}))))
          (let [[v _] (alts!! [out (timeout max-queue-wait-timeout)])]
-            (when-not v
-              (throw (ex-info "Throttler out channel timed out" 
-                              {:causes #{:out-ch-timed-out}}))))
+           (when-not v
+             (throw (ex-info "Throttler out channel timed out"
+                             {:causes #{:out-ch-timed-out}
+                              :timeout max-queue-wait-timeout}))))
          (apply f args))))))
 
 (defn throttle-fn
