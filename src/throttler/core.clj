@@ -171,11 +171,11 @@
           ;; throttled channel before evaluating the original function.
          (let [[v _] (alts!! [[in :eval-request] (timeout max-queue-wait-timeout)])]
             (when-not v
-              (throw (ex-info "Throttler in channel timed out after 5 min" 
+              (throw (ex-info "Throttler in channel timed out" 
                               {:causes #{:in-ch-timed-out}}))))
          (let [[v _] (alts!! [out (timeout max-queue-wait-timeout)])]
             (when-not v
-              (throw (ex-info "Throttler out channel timed out after 5 min" 
+              (throw (ex-info "Throttler out channel timed out" 
                               {:causes #{:out-ch-timed-out}}))))
          (apply f args))))))
 
