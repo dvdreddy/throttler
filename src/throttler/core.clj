@@ -1,5 +1,6 @@
 (ns throttler.core
-  (:require [clojure.core.async :refer [chan <!! >!! >! <! alts!! timeout go close! dropping-buffer]]))
+  (:require [clojure.core.async :refer [chan <!! >!! >! <! alts!! take!
+                                        timeout go close! dropping-buffer]]))
 
 ;; To keep the throttler precise even for high frequencies, we set up a
 ;; minimum sleep time. In my tests I found that below 10 ms the actual
@@ -173,12 +174,15 @@
            (when-not v
              (throw (ex-info "Throttler in channel timed out"
                              {:causes #{:in-ch-timed-out}
-                              :timeout max-queue-wait-timeout}))))
+                              :type :in-ch-timeout
+                              :throttler-timeout max-queue-wait-timeout}))))
          (let [[v _] (alts!! [out (timeout max-queue-wait-timeout)])]
            (when-not v
+             (take! in (fn [_]))
              (throw (ex-info "Throttler out channel timed out"
                              {:causes #{:out-ch-timed-out}
-                              :timeout max-queue-wait-timeout}))))
+                              :type :out-ch-timeout
+                              :throttler-timeout max-queue-wait-timeout}))))
          (apply f args))))))
 
 (defn throttle-fn
