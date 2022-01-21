@@ -174,15 +174,15 @@
            (when-not v
              (throw (ex-info "Throttler in channel timed out"
                              {:causes #{:in-ch-timed-out}
-                              :type :in-ch-timeout
-                              :throttler-timeout max-queue-wait-timeout}))))
+                              :type :throttler-timeout
+                              :timeout max-queue-wait-timeout}))))
          (let [[v _] (alts!! [out (timeout max-queue-wait-timeout)])]
            (when-not v
              (take! in (fn [_]))
              (throw (ex-info "Throttler out channel timed out"
                              {:causes #{:out-ch-timed-out}
-                              :type :out-ch-timeout
-                              :throttler-timeout max-queue-wait-timeout}))))
+                              :type :throttler-timeout
+                              :timeout max-queue-wait-timeout}))))
          (apply f args))))))
 
 (defn throttle-fn
